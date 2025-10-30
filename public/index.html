@@ -416,6 +416,425 @@
         }
     </script>
 </body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenAPI Documentation Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 50px;
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 40px;
+            font-size: 1.1em;
+        }
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+            cursor: pointer;
+            background: #f8f9ff;
+        }
+        .upload-area:hover {
+            background: #f0f2ff;
+            border-color: #764ba2;
+        }
+        .upload-area.dragover {
+            background: #e8ebff;
+            border-color: #764ba2;
+            transform: scale(1.02);
+        }
+        .upload-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+        .upload-text {
+            color: #667eea;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        .upload-hint {
+            color: #999;
+            font-size: 0.9em;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .paste-area {
+            margin-bottom: 30px;
+        }
+        .paste-label {
+            display: block;
+            margin-bottom: 10px;
+            color: #667eea;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .loading.active {
+            display: block;
+        }
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+        .error.active {
+            display: block;
+        }
+        .divider {
+            text-align: center;
+            margin: 30px 0;
+            color: #999;
+            position: relative;
+        }
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: #e0e0e0;
+        }
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+        @media (max-width: 768px) {
+            .container { padding: 30px 20px; }
+            h1 { font-size: 2em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 OpenAPI Docs</h1>
+        <p class="subtitle">Generate beautiful API documentation from your OpenAPI specification</p>
+
+        <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📄</div>
+            <div class="upload-text">Drop your OpenAPI spec here</div>
+            <div class="upload-hint">or click to browse (JSON/YAML)</div>
+            <input type="file" id="fileInput" accept=".json,.yaml,.yml">
+        </div>
+
+        <div class="divider">OR</div>
+
+        <div class="paste-area">
+            <label class="paste-label" for="specInput">Paste your specification:</label>
+            <textarea id="specInput" placeholder='{"openapi": "3.0.0", "info": {...}, "paths": {...}}'></textarea>
+        </div>
+
+        <button class="button" id="generateBtn">Generate Documentation</button>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <div>Generating documentation...</div>
+        </div>
+
+        <div class="error" id="error"></div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const specInput = document.getElementById('specInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const loading = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+
+        let selectedFile = null;
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        fileInput.addEventListener('change', (e) => {
+            selectedFile = e.target.files[0];
+            if (selectedFile) {
+                uploadArea.querySelector('.upload-text').textContent = selectedFile.name;
+                specInput.value = '';
+            }
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                selectedFile = files[0];
+                fileInput.files = files;
+                uploadArea.querySelector('.upload-text').textContent = selectedFile.name;
+                specInput.value = '';
+            }
+        });
+
+        generateBtn.addEventListener('click', async () => {
+            errorDiv.classList.remove('active');
+            
+            if (!selectedFile && !specInput.value.trim()) {
+                showError('Please upload a file or paste your OpenAPI specification');
+                return;
+            }
+
+            loading.classList.add('active');
+            generateBtn.disabled = true;
+
+            try {
+                let spec;
+
+                if (selectedFile) {
+                    const content = await selectedFile.text();
+                    const ext = selectedFile.name.split('.').pop().toLowerCase();
+                    
+                    if (ext === 'yaml' || ext === 'yml') {
+                        spec = jsyaml.load(content);
+                    } else {
+                        spec = JSON.parse(content);
+                    }
+                } else {
+                    const content = specInput.value.trim();
+                    try {
+                        spec = JSON.parse(content);
+                    } catch {
+                        spec = jsyaml.load(content);
+                    }
+                }
+
+                // Validate
+                if (!spec.openapi && !spec.swagger) {
+                    throw new Error('Invalid OpenAPI/Swagger specification: missing version field');
+                }
+                if (!spec.info) {
+                    throw new Error('Invalid OpenAPI/Swagger specification: missing info field');
+                }
+                if (!spec.paths) {
+                    throw new Error('Invalid OpenAPI/Swagger specification: missing paths field');
+                }
+
+                const normalized = normalizeSpec(spec);
+                const html = generateDocumentation(normalized);
+                
+                const newWindow = window.open();
+                newWindow.document.write(html);
+                newWindow.document.close();
+
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                loading.classList.remove('active');
+                generateBtn.disabled = false;
+            }
+        });
+
+        function showError(message) {
+            errorDiv.textContent = `❌ ${message}`;
+            errorDiv.classList.add('active');
+        }
+
+        specInput.addEventListener('input', () => {
+            if (specInput.value.trim()) {
+                selectedFile = null;
+                fileInput.value = '';
+                uploadArea.querySelector('.upload-text').textContent = 'Drop your OpenAPI spec here';
+            }
+        });
+
+        function normalizeSpec(spec) {
+            const normalized = {
+                version: spec.openapi || spec.swagger,
+                info: spec.info,
+                servers: spec.servers || [],
+                paths: {},
+                components: spec.components || spec.definitions || {},
+                tags: spec.tags || []
+            };
+
+            for (const [path, pathItem] of Object.entries(spec.paths)) {
+                normalized.paths[path] = {};
+                const methods = ['get', 'post', 'put', 'patch', 'delete', 'options', 'head'];
+                
+                for (const method of methods) {
+                    if (pathItem[method]) {
+                        normalized.paths[path][method] = {
+                            summary: pathItem[method].summary || '',
+                            description: pathItem[method].description || '',
+                            tags: pathItem[method].tags || [],
+                            parameters: pathItem[method].parameters || [],
+                            requestBody: pathItem[method].requestBody || null,
+                            responses: pathItem[method].responses || {},
+                            deprecated: pathItem[method].deprecated || false
+                        };
+                    }
+                }
+                if (pathItem.parameters) {
+                    normalized.paths[path].parameters = pathItem.parameters;
+                }
+            }
+            return normalized;
+        }
+
+        function generateDocumentation(spec) {
+            return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${escapeHtml(spec.info.title)} - API Documentation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 40px 20px; margin-bottom: 30px; border-radius: 8px; }
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header .version { opacity: 0.9; font-size: 1.1em; }
+        .header .description { margin-top: 15px; opacity: 0.95; }
+        .info-section { background: white; padding: 25px; margin-bottom: 20px; border-radius: 8px; }
+        .info-section h2 { color: #667eea; margin-bottom: 15px; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        .server-item { background: #f8f9fa; padding: 10px 15px; border-radius: 4px; border-left: 3px solid #667eea; margin-bottom: 10px; }
+        .endpoints { margin-top: 30px; }
+        .endpoint { background: white; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .endpoint-header { padding: 20px; cursor: pointer; display: flex; align-items: center; gap: 15px; }
+        .endpoint-header:hover { background: #f8f9fa; }
+        .method { padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 0.85em; text-transform: uppercase; color: white; }
+        .method.get { background: #61affe; }
+        .method.post { background: #49cc90; }
+        .method.put { background: #fca130; }
+        .method.delete { background: #f93e3e; }
+        .method.patch { background: #50e3c2; }
+        .path { font-family: 'Courier New', monospace; font-size: 1.1em; flex: 1; color: #3b4151; }
+        .endpoint-body { padding: 0 20px 20px; display: none; }
+        .endpoint.active .endpoint-body { display: block; }
+        .section { margin-bottom: 20px; }
+        .section-title { font-weight: 600; color: #667eea; margin-bottom: 10px; font-size: 1.1em; }
+        .param-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        .param-table th { background: #f8f9fa; padding: 10px; text-align: left; border-bottom: 2px solid #dee2e6; }
+        .param-table td { padding: 10px; border-bottom: 1px solid #dee2e6; }
+        .param-name { font-family: 'Courier New', monospace; color: #667eea; }
+        .required { color: #f93e3e; font-size: 0.85em; font-weight: bold; }
+        .response-code { display: inline-block; padding: 4px 8px; background: #f8f9fa; border-radius: 4px; font-family: 'Courier New', monospace; font-weight: 600; margin-right: 10px; }
+        .response-code.success { background: #d4edda; color: #155724; }
+        .response-code.error { background: #f8d7da; color: #721c24; }
+        .tag-badge { display: inline-block; padding: 4px 12px; background: #e7f3ff; color: #667eea; border-radius: 12px; font-size: 0.85em; margin-right: 8px; }
+        .search-box input { width: 100%; padding: 12px 20px; border: 2px solid #dee2e6; border-radius: 8px; font-size: 1em; margin-bottom: 20px; }
+        @media (max-width: 768px) { .endpoint-header { flex-direction: column; align-items: flex-start; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>${escapeHtml(spec.info.title)}</h1>
+            <div class="version">Version ${escapeHtml(spec.info.version)}</div>
+            ${spec.info.description ? `<div class="description">${escapeHtml(spec.info.description)}</div>` : ''}
+        </div>
+        ${generateServers(spec)}
+        <div class="search-box">
+            <input type="text" placeholder="Search endpoints..." onkeyup="filterEndpoints(this.value)">
+        </div>
+        <div class="endpoints">
+            ${generateEndpoints(spec)}
+        </div>
+    </div>
+    <script>
+        function toggleEndpoint(el) { el.classList.toggle('active'); }
+        function filterEndpoints(term) {
+            term = term.toLowerCase();
+            document.querySelectorAll('.endpoint').forEach(ep => {
+                ep.style.display = ep.textContent.toLowerCase().includes(term) ? 'block' : 'none';
+            });
+        }
+    </script>
+</body>
 </html>`;
         }
 
