@@ -1,12 +1,12 @@
 {
   "name": "openapi-doc-generator",
   "version": "1.0.0",
-  "description": "Generate beautiful documentation from OpenAPI specifications",
-  "main": "src/server.js",
+  "description": "Generate beautiful documentation from OpenAPI specifications - Serverless Ready",
+  "main": "api/generate.js",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
-    "cli": "node cli.js"
+    "dev": "npx serve public -p 3000",
+    "build": "echo 'No build step required'",
+    "start": "npx serve public -p 3000"
   },
   "keywords": [
     "openapi",
@@ -14,19 +14,17 @@
     "documentation",
     "api",
     "rest",
-    "generator"
+    "generator",
+    "serverless",
+    "vercel",
+    "netlify"
   ],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "js-yaml": "^4.1.0",
-    "multer": "^1.4.5-lts.1",
-    "marked": "^9.1.6"
+    "js-yaml": "^4.1.0"
   },
-  "devDependencies": {
-    "nodemon": "^3.0.2"
-  },
+  "devDependencies": {},
   "engines": {
     "node": ">=14.0.0"
   }
