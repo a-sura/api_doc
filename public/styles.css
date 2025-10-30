@@ -1,9 +1,0 @@
-body { font-family: Inter, system-ui, Arial; margin: 0; padding: 0; }
-header { background: #0f172a; color: white; padding: 1rem; }
-main { padding: 1rem; }
-.controls { display:flex; gap:0.5rem; align-items:center; margin-bottom: 1rem; }
-.controls input { padding: 0.5rem; min-width: 300px; }
-.uploader { display:flex; flex-direction:column; }
-.previews { display:flex; gap:1rem; }
-.preview { flex:1; border:1px solid #e5e7eb; padding:0.5rem; height: 75vh; overflow:auto; }
-.preview h2 { margin:0 0 0.5rem 0 }
