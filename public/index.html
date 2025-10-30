@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OpenAPI Doc Preview</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-bundle.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist/swagger-ui.css" />
+  <script src="https://cdn.redoc.ly/redoc/latest/bundles/redoc.standalone.js"></script>
+</head>
+<body>
+  <header><h1>OpenAPI Documentation Preview</h1></header>
+  <main>
+    <section class="controls">
+      <label>Paste URL to OpenAPI JSON/YAML</label>
+      <input id="specUrl" placeholder="https://example.com/openapi.yaml" />
+      <button id="loadUrl">Load URL</button>
+      <div class="uploader">
+        <label>Or upload a file</label>
+        <input id="fileInput" type="file" accept=".json,.yaml,.yml,application/json" />
+      </div>
+    </section>
+    <section class="previews">
+      <div class="preview" id="swaggerRoot">
+        <h2>Swagger UI</h2>
+        <div id="swaggerUi"></div>
+      </div>
+      <div class="preview" id="redocRoot">
+        <h2>Redoc</h2>
+        <div id="redoc"></div>
+      </div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
