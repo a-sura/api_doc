@@ -1,6 +1,6 @@
 # OpenAPI Documentation Generator
 
-A beautiful, responsive documentation generator for OpenAPI/Swagger specifications. Supports both JSON and YAML formats with live preview capabilities.
+A beautiful, serverless documentation generator for OpenAPI/Swagger specifications. Supports both JSON and YAML formats with live preview capabilities.
 
 ## Features
 
@@ -10,86 +10,107 @@ A beautiful, responsive documentation generator for OpenAPI/Swagger specificatio
 - 🔍 Search functionality
 - 📱 Mobile-friendly design
 - ⚡ Fast and lightweight
-- 🎯 Try It Out feature for testing endpoints
+- ☁️ Serverless deployment ready (Vercel, Netlify, AWS Lambda)
+- 🎯 Client-side processing (no server required)
 
-## Installation
+## Quick Start
+
+### Option 1: Use Client-Side Version (No Server)
+
+Simply open `public/index.html` in your browser - it works completely offline!
+
+### Option 2: Deploy to Vercel
+
+```bash
+npm install -g vercel
+vercel
+```
+
+### Option 3: Deploy to Netlify
+
+```bash
+npm install -g netlify-cli
+netlify deploy
+```
+
+### Option 4: Local Development
 
 ```bash
 npm install
-```
-
-## Usage
-
-### Start the Server
-
-```bash
-npm start
-```
-
-The server will start on `http://localhost:3000`
-
-### Development Mode
-
-```bash
 npm run dev
 ```
 
-Runs with nodemon for auto-restart on file changes.
-
-### Generate Documentation
-
-1. **Via Web Interface**: 
-   - Navigate to `http://localhost:3000`
-   - Upload your OpenAPI spec file (JSON or YAML)
-   - View the generated documentation instantly
-
-2. **Via API**:
-```bash
-curl -X POST http://localhost:3000/api/generate \
-  -H "Content-Type: application/json" \
-  -d @your-openapi-spec.json
-```
-
-3. **Via Command Line**:
-```bash
-node cli.js path/to/your-spec.yaml
-```
+Visit `http://localhost:3000`
 
 ## Project Structure
 
 ```
 openapi-doc-generator/
-├── src/
-│   ├── server.js          # Express server
-│   ├── parser.js          # OpenAPI spec parser
-│   ├── generator.js       # HTML documentation generator
-│   └── templates/
-│       └── doc-template.html  # Documentation template
+├── api/
+│   └── generate.js        # Serverless function for Vercel/Netlify
 ├── public/
-│   ├── css/
-│   │   └── styles.css     # Styling
-│   └── js/
-│       └── app.js         # Frontend JavaScript
-├── uploads/               # Temporary file uploads
-├── cli.js                 # Command-line interface
+│   └── index.html         # Standalone client-side app
+├── src/
+│   ├── parser.js          # OpenAPI spec parser
+│   └── generator.js       # HTML documentation generator
+├── examples/
+│   └── petstore-api.yaml  # Sample OpenAPI spec
+├── vercel.json            # Vercel configuration
+├── netlify.toml           # Netlify configuration
 ├── package.json
 └── README.md
 ```
 
-## API Endpoints
+## Deployment
 
-### `GET /`
-Home page with upload interface
+### Vercel
 
-### `POST /api/generate`
-Generate documentation from OpenAPI spec
-- **Body**: JSON OpenAPI specification
-- **Response**: HTML documentation
+1. Push to GitHub
+2. Import to Vercel
+3. Deploy automatically
 
-### `POST /api/upload`
-Upload and generate documentation from file
-- **Form Data**: `spec` (file)
-- **Response**: HTML documentation
+Or use CLI:
+```bash
+vercel --prod
+```
+
+### Netlify
+
+1. Push to GitHub
+2. Connect to Netlify
+3. Deploy automatically
+
+Or use CLI:
+```bash
+netlify deploy --prod
+```
+
+### AWS Lambda
+
+Use the serverless function in `api/generate.js` with API Gateway.
+
+## Client-Side Usage
+
+The application works entirely in the browser without a backend:
+
+1. Open `public/index.html`
+2. Upload or paste your OpenAPI specification
+3. Documentation is generated instantly in your browser
+
+## API Endpoint (Optional)
+
+If deployed as serverless function:
+
+```bash
+POST /api/generate
+Content-Type: application/json
+
+{
+  "openapi": "3.0.0",
+  "info": {...},
+  "paths": {...}
+}
+```
 
 ## Example OpenAPI Spec
 
@@ -98,7 +119,6 @@ openapi: 3.0.0
 info:
   title: Sample API
   version: 1.0.0
-  description: A sample API for demonstration
 paths:
   /users:
     get:
@@ -110,17 +130,23 @@ paths:
 
 ## Configuration
 
-Edit `src/server.js` to configure:
-- Port number (default: 3000)
-- Upload limits (default: 10MB)
-- CORS settings
+### Vercel
+Edit `vercel.json` for custom domains and settings.
+
+### Netlify
+Edit `netlify.toml` for build settings and redirects.
+
+## Browser Support
+
+- Chrome/Edge (latest)
+- Firefox (latest)
+- Safari (latest)
+- Mobile browsers
 
 ## Dependencies
 
-- **express**: Web framework
-- **js-yaml**: YAML parser
-- **multer**: File upload handling
-- **marked**: Markdown rendering
+Minimal dependencies for fast cold starts:
+- **js-yaml**: YAML parser (browser-compatible)
 
 ## Contributing
 
@@ -134,18 +160,25 @@ Edit `src/server.js` to configure:
 
 MIT License - see LICENSE file for details
 
-## Support
+## Troubleshooting
 
-For issues and questions, please open an issue on GitHub.
+### Serverless Function Crashes
+- Check function timeout limits (increase if needed)
+- Verify file size limits (max 10MB for most providers)
+- Check memory allocation
+
+### CORS Issues
+- Vercel/Netlify handle CORS automatically
+- For custom deployments, ensure CORS headers are set
 
 ## Roadmap
 
+- [x] Client-side processing
+- [x] Serverless deployment
 - [ ] Export to PDF
 - [ ] Multiple theme support
-- [ ] Authentication examples
 - [ ] Code generation for different languages
 - [ ] Postman collection export
-- [ ] Docker support
 
 ## Author
 
