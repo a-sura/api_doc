@@ -1,0 +1,285 @@
+openapi: 3.0.0
+info:
+  title: Petstore API
+  description: A simple API for managing a pet store
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@petstore.com
+    url: https://www.petstore.com/support
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.petstore.com/v1
+    description: Production server
+  - url: https://staging-api.petstore.com/v1
+    description: Staging server
+
+tags:
+  - name: pets
+    description: Operations about pets
+  - name: store
+    description: Store operations
+
+paths:
+  /pets:
+    get:
+      summary: List all pets
+      description: Returns a list of all pets in the store
+      operationId: listPets
+      tags:
+        - pets
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of pets to return
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 20
+            maximum: 100
+        - name: offset
+          in: query
+          description: Number of pets to skip
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 0
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    post:
+      summary: Create a pet
+      description: Add a new pet to the store
+      operationId: createPet
+      tags:
+        - pets
+      requestBody:
+        description: Pet object to add
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPet'
+      responses:
+        '201':
+          description: Pet created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        '400':
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /pets/{petId}:
+    get:
+      summary: Get pet by ID
+      description: Returns a single pet
+      operationId: getPetById
+      tags:
+        - pets
+      parameters:
+        - name: petId
+          in: path
+          description: ID of pet to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        '404':
+          description: Pet not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      summary: Update pet
+      description: Update an existing pet
+      operationId: updatePet
+      tags:
+        - pets
+      parameters:
+        - name: petId
+          in: path
+          description: ID of pet to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: Updated pet object
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPet'
+      responses:
+        '200':
+          description: Pet updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        '404':
+          description: Pet not found
+    
+    delete:
+      summary: Delete pet
+      description: Delete a pet from the store
+      operationId: deletePet
+      tags:
+        - pets
+      parameters:
+        - name: petId
+          in: path
+          description: ID of pet to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Pet deleted successfully
+        '404':
+          description: Pet not found
+
+  /store/inventory:
+    get:
+      summary: Get store inventory
+      description: Returns pet inventories by status
+      operationId: getInventory
+      tags:
+        - store
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: integer
+                  format: int32
+
+components:
+  schemas:
+    Pet:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Unique identifier for the pet
+        name:
+          type: string
+          description: Name of the pet
+          example: Fluffy
+        category:
+          type: string
+          description: Category of the pet
+          enum:
+            - dog
+            - cat
+            - bird
+            - fish
+            - other
+        status:
+          type: string
+          description: Pet status in the store
+          enum:
+            - available
+            - pending
+            - sold
+        tags:
+          type: array
+          description: Tags associated with the pet
+          items:
+            type: string
+        photoUrls:
+          type: array
+          description: URLs of pet photos
+          items:
+            type: string
+    
+    NewPet:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Name of the pet
+          example: Fluffy
+        category:
+          type: string
+          description: Category of the pet
+          enum:
+            - dog
+            - cat
+            - bird
+            - fish
+            - other
+        status:
+          type: string
+          description: Pet status in the store
+          default: available
+          enum:
+            - available
+            - pending
+            - sold
+        tags:
+          type: array
+          description: Tags associated with the pet
+          items:
+            type: string
+        photoUrls:
+          type: array
+          description: URLs of pet photos
+          items:
+            type: string
+    
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+          description: Error code
+        message:
+          type: string
+          description: Error message
